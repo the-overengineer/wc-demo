@@ -98,7 +98,7 @@
           commentElement.classList.add('comment');
           commentElement.author = comment.author;
           commentElement.createdAt = comment.createdAt;
-          commentElement.innerHTML = comment.text;
+          commentElement.innerHTML = comment.content;
           commentElement.addEventListener('delete', this.deleteComment.bind(this, comment));
 
           listElement.appendChild(commentElement);
@@ -118,7 +118,7 @@
           const comment = {
             author,
             content,
-            timestamp: new Date()
+            createdAt: new Date()
           };
 
           this.comments.push(comment);
