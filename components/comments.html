@@ -115,7 +115,12 @@
         const content = contentElement.value;
 
         if (author && content) {
-          const comment = new Comment(author, content);
+          const comment = {
+            author,
+            content,
+            timestamp: new Date()
+          };
+
           this.comments.push(comment);
 
           authorElement.value = contentElement.value = '';

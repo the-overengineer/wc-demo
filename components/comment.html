@@ -78,13 +78,17 @@
         this.boundOnDeleteClick = this.onDeleteClick.bind(this);
       }
 
+      set createdAt(date) {
+        this._createdAt = `${date.getDate()}.${date.getMonth() +  1}.${date.getFullYear()}`;
+      }
+
       connectedCallback() {
         const authorElement = this.shadowRoot.querySelector('#author');
         const createdAtElement = this.shadowRoot.querySelector('#created-at');
         const deleteElement = this.shadowRoot.querySelector('#delete');
 
         authorElement.innerHTML = this.author;
-        createdAtElement.innerHTML = this.createdAt;
+        createdAtElement.innerHTML = this._createdAt;
 
         deleteElement.addEventListener('click', this.boundOnDeleteClick);
       }
