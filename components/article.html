@@ -1,0 +1,52 @@
+<template id="article-template">
+  <style>
+    :host {
+      display: block;
+      padding: 32px 40px;
+    }
+
+    .title {
+      font-weight: bold;
+      padding-bottom: 8px;
+      border-bottom: 1px solid gray;
+    }
+
+    .content {
+      font-size: 1rem;
+      margin: 16px 0;
+    }
+
+    .content::first-letter {
+      font-size: 1.5rem;
+    }
+  </style>
+
+  <h1 class="title">
+    <slot name="title"></slot>
+  </h1>
+  <main class="content">
+    <slot name="content"></slot>
+  </main>
+  <my-comments></my-comments>
+
+</template>
+<script>
+  (function() {
+    'use strict';
+
+    const currentDocument = document.currentScript.ownerDocument;
+
+    class ArticleElement extends HTMLElement {
+      constructor() {
+        super(); // ALWAYS!
+        const template = currentDocument.querySelector('#article-template').content;
+
+        this.attachShadow({
+          mode: 'open'
+        }).appendChild(template.cloneNode(true));
+      }
+    }
+
+    customElements.define('my-article', ArticleElement);
+  }());
+</script>

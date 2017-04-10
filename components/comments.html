@@ -1,0 +1,135 @@
+<template id="comments-template">
+  <style>
+    :host {
+      display: block;
+
+      width: 100%;
+      padding: 32px 0;
+
+      border-top: 1px dashed black;
+    }
+
+    label {
+      font-weight: 500;
+
+      display: block;
+
+      margin-bottom: 8px;
+    }
+
+    .form {
+      padding: 32px 16px;
+    }
+
+    input,
+    textarea {
+      display: block;
+      min-width: 320px;
+      margin-bottom: 32px;
+    }
+
+    .list:not(:empty) {
+      padding: 16px 0;
+      background-color: #F0F0F0;
+    }
+
+    .comment:not(:last-child) {
+      margin-bottom: 16px;
+    }
+
+    .submit-button {
+      display: block;
+      margin-top: 32px;
+    }
+  </style>
+
+  <main id="comments-list" class="list"></main>
+  <form id="form" class="form">
+    <label for="author">Author</label>
+    <input id="author" name="author" />
+
+    <label for="content">Content</label>
+    <textarea
+      id="content"
+      class="content"
+      rows="10"
+    ></textarea>
+
+    <button class="submit-button">Submit</button>
+  </form>
+</template>
+<script>
+  (function() {
+    'use strict';
+
+    const currentDocument = document.currentScript.ownerDocument;
+
+    class CommentsElement extends HTMLElement {
+      constructor() {
+        super(); // ALWAYS!
+        const template = currentDocument.querySelector('#comments-template').content;
+
+        this.attachShadow({
+          mode: 'open'
+        }).appendChild(template.cloneNode(true));
+
+        this.comments = [];
+        this.boundSubmitComment = this.submitComment.bind(this);
+      }
+
+      connectedCallback() {
+        const form = this.shadowRoot.querySelector('#form');
+
+        form.addEventListener('submit', this.boundSubmitComment);
+      }
+
+      disconnectedCallback() {
+        const form = this.shadowRoot.querySelector('#form');
+
+        form.removeEventListener('submit', this.boundSubmitComment);
+      }
+
+      renderComments() {
+        const listElement = this.shadowRoot.querySelector('#comments-list');
+        listElement.innerHTML = '';
+
+        this.comments.forEach((comment) => {
+          const commentElement = document.createElement('my-comment');
+          commentElement.classList.add('comment');
+          commentElement.author = comment.author;
+          commentElement.createdAt = comment.createdAt;
+          commentElement.innerHTML = comment.text;
+          commentElement.addEventListener('delete', this.deleteComment.bind(this, comment));
+
+          listElement.appendChild(commentElement);
+        });
+      }
+
+      submitComment(event) {
+        event.preventDefault();
+
+        const authorElement = this.shadowRoot.querySelector('#author');
+        const contentElement = this.shadowRoot.querySelector('#content');
+
+        const author = authorElement.value;
+        const content = contentElement.value;
+
+        if (author && content) {
+          const comment = new Comment(author, content);
+          this.comments.push(comment);
+
+          authorElement.value = contentElement.value = '';
+
+          this.renderComments();
+        }
+      }
+
+      deleteComment(comment) {
+        this.comments = this.comments.filter((ownComment) => ownComment !== comment);
+        this.renderComments();
+      }
+    }
+
+    customElements.define('my-comments', CommentsElement);
+  }());
+</script>

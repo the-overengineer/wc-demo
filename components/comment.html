@@ -1,0 +1,107 @@
+<template id="comment-template">
+  <style>
+
+
+    :host {
+      display: block;
+
+      padding: 16px;
+
+      background-color: #FFFFFF;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      margin-bottom: 16px;
+    }
+
+    .info {
+      font-size: 18px;
+      font-weight: 500;
+
+      margin: 0;
+    }
+
+    .icon-button {
+      --button-size: 24px;
+
+      font-size: 14px;
+      font-weight: 500;
+
+      width: var(--button-size);
+      height: var(--button-size);
+
+      padding: 4px;
+      background: transparent;
+
+      cursor: pointer;
+
+      border: none;
+      border-radius: 3px;
+    }
+
+    .icon-button:hover {
+      background-color: rgba(0, 0, 0, 0.05);
+    }
+  </style>
+
+  <header class="header">
+    <h2 class="info">
+      <span id="author"></span>
+      <span class="separator">|</span>
+      <span id="created-at"></span>
+    </h2>
+    <button id="delete" class="icon-button">X</button>
+  </header>
+  <main>
+    <slot></slot>
+  </main>
+</template>
+<script>
+  (function() {
+    'use strict';
+
+    const currentDocument = document.currentScript.ownerDocument;
+
+    class CommentElement extends HTMLElement {
+      constructor() {
+        super();
+
+        const template = currentDocument.querySelector('#comment-template').content;
+
+        this.attachShadow({
+          mode: 'open'
+        }).appendChild(template.cloneNode(true));
+
+        this.boundOnDeleteClick = this.onDeleteClick.bind(this);
+      }
+
+      connectedCallback() {
+        const authorElement = this.shadowRoot.querySelector('#author');
+        const createdAtElement = this.shadowRoot.querySelector('#created-at');
+        const deleteElement = this.shadowRoot.querySelector('#delete');
+
+        authorElement.innerHTML = this.author;
+        createdAtElement.innerHTML = this.createdAt;
+
+        deleteElement.addEventListener('click', this.boundOnDeleteClick);
+      }
+
+      disconnectedCallback() {
+        const deleteElement = this.shadowRoot.querySelector('#delete');
+
+        deleteElement.removeEventListener('click', this.boundOnDeleteClick);
+      }
+
+      onDeleteClick(event) {
+        event.preventDefault();
+        const deleteEvent = new Event('delete');
+        this.dispatchEvent(deleteEvent);
+      }
+    }
+
+    customElements.define('my-comment', CommentElement);
+  }());
+</script>
